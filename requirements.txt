@@ -1,0 +1,4 @@
+Quart
+flask-wtf
+requests_oauthlib
+pyjwt
