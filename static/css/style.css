@@ -15,4 +15,20 @@
 .pt-5 {
     background-color: #2C2F33;
     color: white;
+    text-align: center;
+}
+
+.btn-group-wrap {
+    text-align: center;
+}
+
+div.btn-group {
+    margin: 0 auto; 
+    text-align: center;
+    width: inherit;
+    display: inline-block;
+}
+
+a {
+    float: left;
 }
