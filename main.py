@@ -121,7 +121,7 @@ async def error_404(error):
 async def favicon():
     return await send_from_directory(
         os.path.join(app.root_path, "static"),
-        "images/favicon.png",
+        "images/favicon.ico",
         mimetype="image/vnd.microsoft.icon",
     )
 
@@ -167,5 +167,4 @@ async def auth_discord():
 
 
 if __name__ == "__main__":
-    # app.add_url_rule('/favicon.ico', endpoint=url_for('static',filename = 'images/download.jpg'))
     app.run(host="0.0.0.0", port=5000, debug=True)
