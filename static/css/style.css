@@ -12,6 +12,10 @@
     font-family: Pretendard-SemiBold, TossFaceFont;
 }
 
+img {
+    max-width: 100%;
+}
+
 .pt-5 {
     background-color: #2C2F33;
     color: white;
