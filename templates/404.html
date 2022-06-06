@@ -4,9 +4,7 @@
 <h2>요청하신 페이지가 존재하지 않습니다.</h2>
 <p>이 페이지가 이동되었거나, 존재하지 않는 것 같아요.</p>
 
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-secondary" onclick="history.back()">이전 페이지로 이동하기</button>
-    <button type="button" class="btn btn-secondary" onclick="location.href='/'">메인 페이지로 이동하기</button>
-</div>
+<button type="button" class="btn btn-secondary" onclick="history.back()" style="font-family: Pretendard-SemiBold, TossFaceFont;"><i class="bi bi-chevron-left"></i> 이전 페이지로 이동하기</button>
+<button type="button" class="btn btn-secondary" onclick="location.href='/'" style="font-family: Pretendard-SemiBold, TossFaceFont;"><i class="bi bi-house-fill"></i> 메인 페이지로 이동하기</button>
 
 {% endblock %}
