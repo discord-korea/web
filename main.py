@@ -109,7 +109,6 @@ async def before_request():
     ):
         return
     session["last_page"] = request.path
-    print(session["last_page"])
 
 
 @app.errorhandler(404)
@@ -129,6 +128,28 @@ async def favicon():
 @app.route("/")
 async def index():
     return await render_template("index.html", user=await getUser(), title="메인")
+
+
+@app.route("/discord")
+async def discord():
+    return await render_template("redirect.html", redirect_url="https://discord.gg/TD9BvMxhP6", user=await getUser(), title="디스코드 이동하기")
+
+
+@app.route("/service")
+async def service_list():
+    return await render_template("redirect.html", redirect_url="https://discord.gg/TD9BvMxhP6", user=await getUser(), title="디스코드 이동하기")
+
+
+@app.route("/service/<string:service_id>")
+async def service_show(service_id: str):
+    if service_id == "":
+        return await redirect("/service")
+    elif service_id == "happytreebot":
+        return await render_template("redirect.html", redirect_url="https://htb.htlab.kr", user=await getUser(), title="서비스: 해피트리봇")
+    elif service_id == "herbbot":
+        return abort(404)
+    else:
+        return abort(404)
 
 
 @app.route("/login")
