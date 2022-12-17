@@ -2,8 +2,8 @@ import os
 
 import aiohttp
 import jwt
-from quart import (
-    Quart,
+from flask import (
+    Flask,
     abort,
     jsonify,
     redirect,
@@ -17,7 +17,7 @@ from requests_oauthlib import OAuth2Session
 
 import config
 
-app = Quart(__name__)
+app = Flask(__name__)
 
 app.config["SECRET_KEY"] = config.app.client_secret
 
@@ -113,12 +113,12 @@ async def before_request():
 
 @app.errorhandler(404)
 async def error_404(error):
-    return await render_template("404.html", user=await getUser(), title="404"), 404
+    return render_template("404.html", user=await getUser(), title="404"), 404
 
 
 @app.route("/favicon.ico")
 async def favicon():
-    return await send_from_directory(
+    return send_from_directory(
         os.path.join(app.root_path, "static"),
         "images/favicon.ico",
         mimetype="image/vnd.microsoft.icon",
@@ -127,25 +127,40 @@ async def favicon():
 
 @app.route("/")
 async def index():
-    return await render_template("index.html", user=await getUser(), title="메인")
+    return render_template("index.html", user=await getUser(), title="메인")
 
 
 @app.route("/discord")
 async def discord():
-    return await render_template("redirect.html", redirect_url="https://discord.gg/TD9BvMxhP6", user=await getUser(), title="디스코드 이동하기")
+    return render_template(
+        "redirect.html",
+        redirect_url="https://discord.gg/TD9BvMxhP6",
+        user=await getUser(),
+        title="디스코드 이동하기",
+    )
 
 
 @app.route("/service")
 async def service_list():
-    return await render_template("redirect.html", redirect_url="https://discord.gg/TD9BvMxhP6", user=await getUser(), title="디스코드 이동하기")
+    return render_template(
+        "redirect.html",
+        redirect_url="https://discord.gg/TD9BvMxhP6",
+        user=await getUser(),
+        title="디스코드 이동하기",
+    )
 
 
 @app.route("/service/<string:service_id>")
 async def service_show(service_id: str):
     if service_id == "":
-        return await redirect("/service")
+        return redirect("/service")
     elif service_id == "happytreebot":
-        return await render_template("redirect.html", redirect_url="https://htb.htlab.kr", user=await getUser(), title="서비스: 해피트리봇")
+        return render_template(
+            "redirect.html",
+            redirect_url="https://htb.htlab.kr",
+            user=await getUser(),
+            title="서비스: 해피트리봇",
+        )
     elif service_id == "herbbot":
         return abort(404)
     else:
@@ -157,9 +172,30 @@ async def login():
     discordoauth = make_session(scope=["identify"])
     authorization_url, state = discordoauth.authorization_url(AUTHORIZATION_BASE_URL)
     session["discord_oauth2_state"] = state
-    return await render_template(
-        "login.html", title="로그인", oauth2_link=authorization_url
-    )
+    return render_template("login.html", title="로그인", oauth2_link=authorization_url)
+
+
+@app.route("/logout")
+async def logout():
+    async with aiohttp.ClientSession() as aiosession:
+        async with aiosession.post(
+            "https://discord.com/api/v8/oauth2/token/revoke",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data={
+                "client_id": config.app.client_id,
+                "client_secret": config.app.client_secret,
+                "token": jwt.decode(
+                    session["discord_oauth2_token"],
+                    config.app.client_secret,
+                    algorithms=["HS256"],
+                ),
+            },
+        ) as resp:
+            if resp.status == 200:
+                del session["discord_oauth2_token"]
+                return redirect("/")
+            else:
+                return redirect("/")
 
 
 @app.route("/auth/discord")
@@ -171,13 +207,13 @@ async def auth_discord():
         if request.args.get("state") != session["discord_oauth2_state"]:
             return "Invalid state"
 
-        discordoauth = make_session()
+        discordoauth = make_session(state=request.args.get("state"))
         token = discordoauth.fetch_token(
             TOKEN_URL,
             client_secret=config.app.client_secret,
             authorization_response=request.url,
         )
-        user = discordoauth.get("https://discord.com/api/users/@me").json()
+        discordoauth.get("https://discord.com/api/users/@me").json()
     except:
         return redirect("/login")
     session["discord_oauth2_token"] = jwt.encode(
